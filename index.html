@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Collaborative Roadside — Request Help</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="/icon-192.png">
 <style>
   :root{
     --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --accent:#22c55e; --accent2:#38bdf8; --text:#e2e8f0; --danger:#ef4444;
@@ -38,7 +41,7 @@
     <div class="logo">CR</div>
     <div>
       <h1 class="h1">Collaborative Roadside</h1>
-      <div class="muted">Fast, reliable non‑towing assistance • Memphis / Olive Branch</div>
+      <div class="muted">Fast, reliable non-towing assistance • Memphis / Olive Branch</div>
     </div>
   </header>
 
@@ -82,7 +85,7 @@
     </div>
     <div style="margin-top:8px">
       <label>Notes (vehicle, color, plate, special spot)</label>
-      <textarea id="notes" rows="3" placeholder="Silver Camry, shoulder of I‑240, exit 20A"></textarea>
+      <textarea id="notes" rows="3" placeholder="Silver Camry, shoulder of I-240, exit 20A"></textarea>
     </div>
     <div class="row" style="margin-top:10px">
       <button id="requestBtn" class="btn accent" style="flex:2">🚀 Request Service</button>
@@ -105,7 +108,6 @@
   <input type="hidden" name="access_key" value="PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE" />
   <input type="hidden" name="subject" value="New Roadside Assistance Request" />
   <input type="hidden" name="from_name" value="Collaborative Roadside App" />
-  <!-- We'll fill this dynamically: -->
   <input type="hidden" name="message" id="f_message" />
 </form>
 
@@ -115,6 +117,13 @@
   const selected = { service:null };
   const businessPhone = '+19017452474';
   const submitStatus = E('submitStatus');
+
+  // Service worker registration
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js').catch(console.error);
+    });
+  }
 
   // Service selection
   document.querySelectorAll('[data-service]').forEach(btn=>{
@@ -126,7 +135,7 @@
     });
   });
 
-  // Quick SMS link in Services card
+  // Quick SMS link
   E('smsQuick').addEventListener('click', (e)=>{
     e.preventDefault(); openSMS('Hi, I need roadside assistance. Can you call me?');
   });
@@ -180,7 +189,6 @@
   E('requestBtn').addEventListener('click', ()=>{
     if (!selected.service) { toast('Pick a service first'); return; }
     submitStatus.textContent = 'Submitting…';
-    // Fill hidden form and submit (background)
     E('f_message').value = buildMessage();
     const needsKey = document.querySelector('input[name="access_key"]').value.includes('PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE');
     if (needsKey){
@@ -195,7 +203,7 @@
 
   // Tiny toast helper
   let toastEl = null; function toast(msg){
-    if (!toastEl){ toastEl = document.createElement('div'); toastEl.style.position='fixed'; toastEl.style.left='50%'; toastEl.style.bottom='24px'; toastEl.style.transform='translateX(-50%)'; toastEl.style.background='#0f172a'; toastEl.style.border='1px solid #1f2937'; toastEl.style.color='var(--text)'; toastEl.style.padding='10px 14px'; toastEl.style.borderRadius='10px'; toastEl.style.boxShadow='0 6px 18px rgba(0,0,0,0.35)'; document.body.appendChild(toastEl);} 
+    if (!toastEl){ toastEl = document.createElement('div'); toastEl.style.position='fixed'; toastEl.style.left='50%'; toastEl.style.bottom='24px'; toastEl.style.transform='translateX(-50%)'; toastEl.style.background='#0f172a'; toastEl.style.border='1px solid #1f2937'; toastEl.style.color='#e2e8f0'; toastEl.style.padding='10px 14px'; toastEl.style.borderRadius='10px'; toastEl.style.boxShadow='0 6px 18px rgba(0,0,0,0.35)'; document.body.appendChild(toastEl);} 
     toastEl.textContent = msg; toastEl.style.opacity='1';
     clearTimeout(toastEl._t); toastEl._t = setTimeout(()=> toastEl.style.opacity='0', 1800);
   }
