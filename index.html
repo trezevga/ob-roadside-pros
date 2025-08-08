@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OB Roadside Pros</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ff0000" />
+  <link rel="icon" sizes="192x192" href="icon-192.png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #d32f2f;
+      color: white;
+      padding: 1rem;
+      font-size: 1.5rem;
+    }
+    main {
+      padding: 1rem;
+    }
+    button {
+      display: block;
+      width: 90%;
+      max-width: 300px;
+      margin: 0.5rem auto;
+      padding: 1rem;
+      font-size: 1.1rem;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0d47a1;
+    }
+  </style>
+</head>
+<body>
+  <header>🚗 OB Roadside Pros</header>
+  <main>
+    <h2>Need Roadside Assistance?</h2>
+    <p>Select your service below:</p>
+
+    <button onclick="requestService('Flat Tire')">🚘 Flat Tire</button>
+    <button onclick="requestService('Dead Battery')">🔋 Dead Battery</button>
+    <button onclick="requestService('Out of Gas')">⛽ Out of Gas</button>
+    <button onclick="requestService('Locked Out')">🔑 Locked Out</button>
+
+    <p style="margin-top:2rem;font-size:0.9rem;">
+      Serving Olive Branch, MS & Memphis, TN areas
+    </p>
+  </main>
+
+  <script>
+    function requestService(type) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const smsNumber = "19017452474";
+          const smsText = encodeURIComponent(
+            `Service: ${type}\nLocation: https://maps.google.com/?q=${lat},${lon}`
+          );
+          window.location.href = `sms:${smsNumber}?&body=${smsText}`;
+        }, err => {
+          alert("Could not get your location. Please call us directly.");
+          window.location.href = "tel:+19017452474";
+        });
+      } else {
+        window.location.href = "tel:+19017452474";
+      }
+    }
+  </script>
+</body>
+</html>
