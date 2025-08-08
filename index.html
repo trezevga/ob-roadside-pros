@@ -1,82 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OB Roadside Pros</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#ff0000" />
-  <link rel="icon" sizes="192x192" href="icon-192.png" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #d32f2f;
-      color: white;
-      padding: 1rem;
-      font-size: 1.5rem;
-    }
-    main {
-      padding: 1rem;
-    }
-    button {
-      display: block;
-      width: 90%;
-      max-width: 300px;
-      margin: 0.5rem auto;
-      padding: 1rem;
-      font-size: 1.1rem;
-      background: #1976d2;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0d47a1;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Collaborative Roadside — Request Help</title>
+<style>
+  :root{
+    --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --accent:#22c55e; --accent2:#38bdf8; --text:#e2e8f0; --danger:#ef4444;
+  }
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+  .wrap{max-width:720px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#3b82f6);display:grid;place-items:center;font-weight:800}
+  .h1{font-size:22px;margin:0}
+  .card{background:var(--card);border:1px solid #1f2937;border-radius:14px;padding:14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn{display:flex;align-items:center;justify-content:center;padding:14px;border-radius:12px;border:1px solid #1f2937;background:#0a1222;color:var(--text);text-decoration:none;font-weight:600}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.accent{background:#052e2a;border-color:#134e4a}
+  .btn.sky{background:#071c2a;border-color:#0b3a53}
+  .btn.red{background:#2a0d10;border-color:#3f0f16}
+  .btn.gold{background:#2a250a;border-color:#3e370b}
+  .muted{color:var(--muted);font-size:13px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid #1f2937;background:#0b1220;color:var(--text)}
+  label{font-size:13px;color:var(--muted)}
+  .pill{font-size:12px;border:1px solid #1f2937;padding:4px 8px;border-radius:999px;color:var(--muted)}
+  .link{color:#93c5fd;text-decoration:underline}
+  .hidden{display:none}
+  .ok{color:#22c55e}
+  .err{color:#ef4444}
+</style>
 </head>
 <body>
-  <header>🚗 OB Roadside Pros</header>
-  <main>
-    <h2>Need Roadside Assistance?</h2>
-    <p>Select your service below:</p>
+<div class="wrap">
+  <header class="brand">
+    <div class="logo">CR</div>
+    <div>
+      <h1 class="h1">Collaborative Roadside</h1>
+      <div class="muted">Fast, reliable non‑towing assistance • Memphis / Olive Branch</div>
+    </div>
+  </header>
 
-    <button onclick="requestService('Flat Tire')">🚘 Flat Tire</button>
-    <button onclick="requestService('Dead Battery')">🔋 Dead Battery</button>
-    <button onclick="requestService('Out of Gas')">⛽ Out of Gas</button>
-    <button onclick="requestService('Locked Out')">🔑 Locked Out</button>
+  <section class="card" id="servicesCard">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <strong>What do you need?</strong>
+      <span class="pill">Open 6pm–2am Sun–Wed • Thu–Sat after 7am</span>
+    </div>
+    <div class="grid" style="margin-top:10px">
+      <button class="btn accent" data-service="Lockout">🔑 Lockout</button>
+      <button class="btn sky" data-service="Fuel Delivery">⛽ Fuel Delivery</button>
+      <button class="btn gold" data-service="Jump Start">🔋 Jump Start</button>
+      <button class="btn" data-service="Tire Change">🛞 Tire Change</button>
+      <button class="btn" data-service="Other">📦 Other</button>
+      <a class="btn red" href="tel:+19017452474">📞 Call Now</a>
+    </div>
+    <div class="muted" style="margin-top:8px">Prefer to talk first? Tap <a class="link" href="tel:+19017452474">Call Now</a> or <a class="link" id="smsQuick" href="#">Text Us</a>.</div>
+  </section>
 
-    <p style="margin-top:2rem;font-size:0.9rem;">
-      Serving Olive Branch, MS & Memphis, TN areas
-    </p>
-  </main>
+  <section class="card" id="locationCard">
+    <strong>Where are you?</strong>
+    <div class="row" style="margin-top:8px">
+      <button id="useLocation" class="btn accent" style="flex:1">📍 Use My Location</button>
+      <button id="copyMaps" class="btn" style="flex:1">📎 Copy Google Maps Link</button>
+    </div>
+    <div id="locStatus" class="muted" style="margin-top:8px">Location not set.</div>
+    <div id="locData" class="muted hidden" style="margin-top:6px"></div>
+  </section>
 
-  <script>
-    function requestService(type) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          const lat = pos.coords.latitude;
-          const lon = pos.coords.longitude;
-          const smsNumber = "19017452474";
-          const smsText = encodeURIComponent(
-            `Service: ${type}\nLocation: https://maps.google.com/?q=${lat},${lon}`
-          );
-          window.location.href = `sms:${smsNumber}?&body=${smsText}`;
-        }, err => {
-          alert("Could not get your location. Please call us directly.");
-          window.location.href = "tel:+19017452474";
-        });
-      } else {
-        window.location.href = "tel:+19017452474";
-      }
+  <section class="card" id="detailsCard">
+    <strong>Contact & Details</strong>
+    <div class="row" style="margin-top:8px">
+      <div style="flex:1">
+        <label>Your Name</label>
+        <input id="name" placeholder="First & last name" autocomplete="name" />
+      </div>
+      <div style="flex:1">
+        <label>Your Phone</label>
+        <input id="phone" placeholder="5551234567" inputmode="tel" autocomplete="tel" />
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <label>Notes (vehicle, color, plate, special spot)</label>
+      <textarea id="notes" rows="3" placeholder="Silver Camry, shoulder of I‑240, exit 20A"></textarea>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="requestBtn" class="btn accent" style="flex:2">🚀 Request Service</button>
+      <a id="callBtn" class="btn" style="flex:1" href="tel:+19017452474">📞 Call</a>
+      <a id="textBtn" class="btn sky" style="flex:1" href="#">💬 Text</a>
+    </div>
+    <div class="muted" style="margin-top:8px">We’ll confirm your rate and send an ETA.</div>
+    <div id="submitStatus" class="muted" style="margin-top:8px"></div>
+  </section>
+
+  <section class="card">
+    <strong>Service Area</strong>
+    <div class="muted" style="margin-top:6px">Memphis, TN • Olive Branch, MS • Nearby areas</div>
+  </section>
+</div>
+
+<!-- Hidden form for Web3Forms (avoids CORS; posts in background) -->
+<iframe name="hidden_iframe" style="display:none"></iframe>
+<form id="backendForm" class="hidden" action="https://api.web3forms.com/submit" method="POST" target="hidden_iframe">
+  <input type="hidden" name="access_key" value="PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE" />
+  <input type="hidden" name="subject" value="New Roadside Assistance Request" />
+  <input type="hidden" name="from_name" value="Collaborative Roadside App" />
+  <!-- We'll fill this dynamically: -->
+  <input type="hidden" name="message" id="f_message" />
+</form>
+
+<script>
+(function(){
+  const E = id => document.getElementById(id);
+  const selected = { service:null };
+  const businessPhone = '+19017452474';
+  const submitStatus = E('submitStatus');
+
+  // Service selection
+  document.querySelectorAll('[data-service]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      selected.service = btn.dataset.service;
+      document.querySelectorAll('[data-service]').forEach(b=>b.style.outline='none');
+      btn.style.outline='2px solid #22c55e';
+      toast(`Selected: ${selected.service}`);
+    });
+  });
+
+  // Quick SMS link in Services card
+  E('smsQuick').addEventListener('click', (e)=>{
+    e.preventDefault(); openSMS('Hi, I need roadside assistance. Can you call me?');
+  });
+
+  // Geolocation
+  let coords = null, accuracy = null;
+  E('useLocation').addEventListener('click', ()=>{
+    if (!('geolocation' in navigator)) { setStatus('Geolocation not supported.'); return; }
+    setStatus('Getting location…');
+    navigator.geolocation.getCurrentPosition((pos)=>{
+      coords = pos.coords; accuracy = Math.round(coords.accuracy);
+      setStatus('Location captured ✅');
+      const link = mapsLink(coords.latitude, coords.longitude);
+      E('locData').classList.remove('hidden');
+      E('locData').innerHTML = `Lat: ${coords.latitude.toFixed(5)}, Lng: ${coords.longitude.toFixed(5)} • Accuracy ~ ${accuracy}m<br><a class="link" href="${link}" target="_blank">Open in Google Maps</a>`;
+    }, (err)=>{
+      setStatus('Could not get location: '+ err.message);
+    }, { enableHighAccuracy:true, maximumAge:10000, timeout:15000 });
+  });
+
+  E('copyMaps').addEventListener('click', async ()=>{
+    if (!coords) { toast('Tap "Use My Location" first'); return; }
+    const link = mapsLink(coords.latitude, coords.longitude);
+    try { await navigator.clipboard.writeText(link); toast('Google Maps link copied'); }
+    catch(e){ toast('Copy failed — long-press to copy'); }
+  });
+
+  function setStatus(msg){ E('locStatus').textContent = msg; }
+  function mapsLink(lat,lng){ return `https://maps.google.com/?q=${lat},${lng}`; }
+
+  // Compose message body
+  function buildMessage(){
+    const name = E('name').value.trim();
+    const phone = E('phone').value.trim();
+    const notes = E('notes').value.trim();
+    const svc = selected.service || 'Roadside Assistance';
+    const loc = coords ? `\nLocation: ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)} (±${accuracy}m)\nMaps: ${mapsLink(coords.latitude, coords.longitude)}` : '\nLocation: (not shared)';
+    const ua = navigator.userAgent;
+    return `Service: ${svc}\nName: ${name||'(not given)'}\nPhone: ${phone||'(not given)'}\nNotes: ${notes||'(none)'}${loc}\nUserAgent: ${ua}`;
+  }
+
+  function openSMS(preset){
+    const body = encodeURIComponent(preset || buildMessage());
+    const href = `sms:${businessPhone}?&body=${body}`;
+    window.location.href = href;
+  }
+
+  // Buttons
+  E('textBtn').addEventListener('click', (e)=>{ e.preventDefault(); openSMS(); });
+  E('callBtn').setAttribute('href', `tel:${businessPhone}`);
+  E('requestBtn').addEventListener('click', ()=>{
+    if (!selected.service) { toast('Pick a service first'); return; }
+    submitStatus.textContent = 'Submitting…';
+    // Fill hidden form and submit (background)
+    E('f_message').value = buildMessage();
+    const needsKey = document.querySelector('input[name="access_key"]').value.includes('PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE');
+    if (needsKey){
+      submitStatus.innerHTML = '<span class="err">Backend not configured yet. Tap Text to send manually, or add your Web3Forms access key.</span>';
+      toast('Backend not set — using Text instead'); 
+      openSMS(); 
+      return;
     }
-  </script>
+    document.getElementById('backendForm').submit();
+    submitStatus.innerHTML = '<span class="ok">Request sent! We\'ll contact you shortly.</span>';
+  });
+
+  // Tiny toast helper
+  let toastEl = null; function toast(msg){
+    if (!toastEl){ toastEl = document.createElement('div'); toastEl.style.position='fixed'; toastEl.style.left='50%'; toastEl.style.bottom='24px'; toastEl.style.transform='translateX(-50%)'; toastEl.style.background='#0f172a'; toastEl.style.border='1px solid #1f2937'; toastEl.style.color='var(--text)'; toastEl.style.padding='10px 14px'; toastEl.style.borderRadius='10px'; toastEl.style.boxShadow='0 6px 18px rgba(0,0,0,0.35)'; document.body.appendChild(toastEl);} 
+    toastEl.textContent = msg; toastEl.style.opacity='1';
+    clearTimeout(toastEl._t); toastEl._t = setTimeout(()=> toastEl.style.opacity='0', 1800);
+  }
+})();
+</script>
 </body>
 </html>
