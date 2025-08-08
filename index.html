@@ -4,14 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OB Roadside Pros — Request Help</title>
+  <!-- PWA hooks (expects these files already in your repo): manifest.json, service-worker.js, icons -->
   <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#CC5500" />
   <link rel="icon" sizes="192x192" href="./icon-192.png" />
+
   <style>
-    :root { --burnt-orange: #CC5500; --black: #000000; --smoke-grey: #888B8D; }
+    :root {
+      --burnt-orange: #CC5500;
+      --black: #000000;
+      --smoke-grey: #888B8D;
+    }
     html, body { height: 100%; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; background: var(--black); color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; }
-    header { position: sticky; top: 0; width: 100%; background: var(--burnt-orange); color: #fff; padding: 14px 16px; font-size: 1.4rem; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,.4); text-align: center; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: var(--black);
+      color: #fff;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      position: sticky; top: 0;
+      width: 100%;
+      background: var(--burnt-orange);
+      color: #fff;
+      padding: 14px 16px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(0,0,0,.4);
+      text-align: center;
+      z-index: 10;
+    }
     .wrap { width: 100%; max-width: 720px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
     .card { background: #0c0c0c; border: 1px solid #1f1f1f; border-radius: 14px; padding: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -28,9 +53,47 @@
     .hidden { display:none; }
     .ok { color:#7CFC7C }
     .err { color:#ff6b6b }
+
+    /* Splash screen */
+    .splash {
+      position: fixed; inset: 0; z-index: 9999;
+      display: grid; place-items: center;
+      background: radial-gradient(1200px 800px at 50% 30%, rgba(204,85,0,0.25), transparent 60%),
+                  linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .splash__inner {
+      display: grid; place-items: center; gap: 14px;
+      transform: translateY(6px);
+      animation: lift .8s ease forwards;
+    }
+    .logo-mark {
+      width: 96px; height: 96px; border-radius: 22px;
+      background: linear-gradient(135deg, var(--burnt-orange), #a94400 70%);
+      box-shadow: 0 12px 28px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.06);
+      display: grid; place-items: center;
+    }
+    .logo-mark__text {
+      font-weight: 900; font-size: 30px; letter-spacing: .5px;
+      color: var(--smoke-grey);
+      text-shadow: 0 1px 0 rgba(0,0,0,.35);
+    }
+    .brand-line { font-weight: 800; font-size: 18px; color: #fff; }
+    .tagline { color: var(--smoke-grey); font-size: 13px; }
+    .splash--hide { opacity: 0; transform: scale(.985); pointer-events: none; }
+    @keyframes lift { from { transform: translateY(10px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 <body>
+  <!-- Splash -->
+  <div id="app-splash" class="splash">
+    <div class="splash__inner">
+      <div class="logo-mark"><div class="logo-mark__text">OB</div></div>
+      <div class="brand-line">OB Roadside Pros</div>
+      <div class="tagline">Fast • Reliable • Local</div>
+    </div>
+  </div>
+
   <header>🚨 OB Roadside Pros</header>
   <div class="wrap">
 
@@ -74,7 +137,7 @@
       </div>
       <div style="margin-top:8px">
         <label>Notes (vehicle, color, plate, special spot)</label>
-        <textarea id="notes" rows="3" placeholder="Silver Camry, shoulder of I‑240, exit 20A"></textarea>
+        <textarea id="notes" rows="3" placeholder="Silver Camry, shoulder of I-240, exit 20A"></textarea>
       </div>
       <div class="row" style="margin-top:10px">
         <button id="requestBtn" class="btn accent" style="flex:2">🚀 Request Service</button>
@@ -103,12 +166,33 @@
     const businessPhone = '+19017452474';
     const submitStatus = E('submitStatus');
 
+    // Service worker registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js').catch(console.error);
       });
     }
 
+    // Splash control: hide after first render or 1.2s, whichever is later
+    (function(){
+      const splash = document.getElementById('app-splash');
+      const MIN_TIME = 1200;
+      const start = performance.now();
+      function hideSplash() {
+        if (!splash) return;
+        const elapsed = performance.now() - start;
+        const wait = Math.max(0, MIN_TIME - elapsed);
+        setTimeout(() => splash.classList.add('splash--hide'), wait);
+        splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+      }
+      if (document.readyState === 'complete') hideSplash();
+      else window.addEventListener('load', hideSplash);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(hideSplash).catch(()=>{});
+      }
+    })();
+
+    // Service selection
     document.querySelectorAll('[data-service]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         selected.service = btn.dataset.service;
@@ -118,10 +202,15 @@
       });
     });
 
-    E('smsQuick').addEventListener('click', (e)=>{
-      e.preventDefault(); openSMS('Hi, I need roadside assistance. Can you call me?');
-    });
+    // Quick SMS link
+    const smsQuick = document.getElementById('smsQuick');
+    if (smsQuick) {
+      smsQuick.addEventListener('click', (e)=>{
+        e.preventDefault(); openSMS('Hi, I need roadside assistance. Can you call me?');
+      });
+    }
 
+    // Geolocation
     let coords = null, accuracy = null;
     E('useLocation').addEventListener('click', ()=>{
       if (!('geolocation' in navigator)) { setStatus('Geolocation not supported.'); return; }
@@ -141,12 +230,13 @@
       if (!coords) { toast('Tap "Use My Location" first'); return; }
       const link = mapsLink(coords.latitude, coords.longitude);
       try { await navigator.clipboard.writeText(link); toast('Google Maps link copied'); }
-      catch(e){ toast('Copy failed — long‑press to copy'); }
+      catch(e){ toast('Copy failed — long-press to copy'); }
     });
 
-    function setStatus(msg){ E('locStatus').textContent = msg; }
+    function setStatus(msg){ const el = E('locStatus'); if (el) el.textContent = msg; }
     function mapsLink(lat,lng){ return `https://maps.google.com/?q=${lat},${lng}`; }
 
+    // Compose message body
     function buildMessage(){
       const name = (E('name')?.value || '').trim();
       const phone = (E('phone')?.value || '').trim();
@@ -163,6 +253,7 @@
       window.location.href = href;
     }
 
+    // Buttons
     E('textBtn').addEventListener('click', (e)=>{ e.preventDefault(); openSMS(); });
     E('callBtn').setAttribute('href', `tel:${businessPhone}`);
     E('requestBtn').addEventListener('click', ()=>{
@@ -180,6 +271,7 @@
       submitStatus.innerHTML = '<span class="ok">Request sent! We\'ll contact you shortly.</span>';
     });
 
+    // Toast helper
     let toastEl = null; function toast(msg){
       if (!toastEl){ toastEl = document.createElement('div'); toastEl.style.position='fixed'; toastEl.style.left='50%'; toastEl.style.bottom='24px'; toastEl.style.transform='translateX(-50%)'; toastEl.style.background='#111'; toastEl.style.border='1px solid #2a2a2a'; toastEl.style.color='#fff'; toastEl.style.padding='10px 14px'; toastEl.style.borderRadius='10px'; toastEl.style.boxShadow='0 6px 18px rgba(0,0,0,0.35)'; document.body.appendChild(toastEl);} 
       toastEl.textContent = msg; toastEl.style.opacity='1';
