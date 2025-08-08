@@ -260,7 +260,7 @@
       if (!selected.service) { toast('Pick a service first'); return; }
       submitStatus.textContent = 'Submitting…';
       E('f_message').value = buildMessage();
-      const needsKey = document.querySelector('input[name="access_key"]').value.includes('PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE');
+      const needsKey = document.querySelector('input[name="access_key"]').value.includes('621f8953-e894-44de-9178-db262a3b3442');
       if (needsKey){
         submitStatus.innerHTML = '<span class="err">Backend not configured yet. Tap Text to send manually, or add your Web3Forms access key.</span>';
         toast('Backend not set — using Text instead'); 
