@@ -1,16 +1,16 @@
-// Collaborative Roadside — Service Worker
-const CACHE_NAME = 'cr-pwa-v1';
-const OFFLINE_URL = '/offline.html';
+// OB Roadside Pros — Service Worker
+const CACHE_NAME = 'ob-roadside-burnt-v1';
+const OFFLINE_URL = './offline.html';
 
 const CORE_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/offline.html',
-  '/icon-64.png',
-  '/icon-128.png',
-  '/icon-192.png',
-  '/icon-512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './offline.html',
+  './icon-64.png',
+  './icon-128.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
